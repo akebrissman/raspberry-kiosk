@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+	<script>
+	$(document).ready(function() {
+		// Reload the page every hour
+		setInterval(function(){ reload_page(); },60*60*1000);
+		reload_page();
+	});
+
+	function reload_page() {
+		var src = "https://smithmicro.com";
+		var iframe_html = '<iframe src="'+ src +'" style="position:fixed; top:0; left:0; bottom:0; right:0; width:100%; height:100%; border:none; margin:0; padding:0; overflow:hidden; z-index:999999;"></iframe>';
+		$('#home_page').remove();
+		$('#iframe').html(iframe_html);
+	}
+	</script>
+</head>
+<body>
+	<div id="iframe">
+		<iframe id = "home_page">
+			Your browser doesn't support iframes
+		</iframe>
+	</div>
+</body>
+</html>

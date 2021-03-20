@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />	
+<style>
+
+</style>
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+
+<script>	
+ $(document).ready(function(){
+	getDeviceInfo()
+    setInterval(function(){ reload_page(); },60*60*1000);
+ });
+
+ function reload_page(){
+ var src = "https://viewspot-ngcmx-dev.smithmicro.io/device-web-client/?experienceId=312&deviceId=pi&storeId=null";
+  $('#test').remove();
+        var iframe_html = '<iframe src="'+ src +'" style="position:fixed; top:0; left:0; bottom:0; right:0; width:100%; height:100%; border:none; margin:0; padding:0; overflow:hidden; z-index:999999;"></iframe>';		
+        $('#iframe').html(iframe_html);    
+ }
+ 
+ function getDeviceInfo() {
+ console.log("function to get dynamic store ID, and experience ID should implement")
+ }
+</script>
+
+</head>
+<body>
+	<div>	  
+	 
+	  <div id="iframe">
+		<iframe id = "test" src="https://viewspot-ngcmx-dev.smithmicro.io/device-web-client/?experienceId=312&deviceId=pi&storeId=null"
+		style="position:fixed; top:0; left:0; bottom:0; right:0; width:100%; height:100%; border:none; margin:0; padding:0; overflow:hidden; z-index:999999;">
+			Your browser doesn't support iframes
+		</iframe>
+	  </div>	   
+	  
+	</div>
+</body>
+</html>

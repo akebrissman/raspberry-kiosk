@@ -1,0 +1,46 @@
+---
+
+- name: update apt packages
+  apt: update_cache=yes cache_valid_time=3600
+  become: true
+  tags: system
+
+- name: upgrade apt packages
+  apt: upgrade=yes
+  become: true
+  tags: system
+
+- name: configure option values in /etc/locale.gen file
+  lineinfile:
+    dest: /etc/locale.gen
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    insertafter: EOF
+    state: present
+  with_items: "{{ locale_options }}"
+  become: true
+  tags: system
+
+- name: generate locale
+  command: locale-gen {{ locale }}
+  become: true
+  tags: system
+
+- name: set locale
+  command: update-locale LC_ALL={{ locale }} LANG={{ locale }}
+  become: true
+  tags: system
+
+- name: set timezone
+  template: src=../templates/timezone dest=/etc/timezone
+  become: true
+  tags: system
+
+- name: set default keyboard
+  template: src=../templates/keyboard dest=/etc/default/keyboard
+  become: true
+  tags: system
+
+# notify: reboot
+
+...

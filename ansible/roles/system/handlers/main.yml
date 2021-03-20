@@ -1,0 +1,20 @@
+---
+- name: reboot
+  shell: sleep 2 && reboot
+  async: 1
+  poll: 0
+  ignore_errors: true
+  become: true
+  tags: system
+
+- name: wait for Raspberry PI to come back
+  local_action: wait_for host={{ real_ansible_host }} port=22 state=started delay=10
+  become: false
+  tags: system
+
+- name: Set hostname
+  become: yes
+  command: hostnamectl set-hostname "{{ hostname }}"
+  tags: system
+
+...
