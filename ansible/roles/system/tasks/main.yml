@@ -32,12 +32,16 @@
   tags: system
 
 - name: set timezone
-  template: src=../templates/timezone dest=/etc/timezone
+  ansible.builtin.template:
+    src: ../templates/timezone
+    dest: /etc/timezone
   become: true
   tags: system
 
 - name: set default keyboard
-  template: src=../templates/keyboard dest=/etc/default/keyboard
+  ansible.builtin.template:
+    src: ../templates/keyboard
+    dest: /etc/default/keyboard
   become: true
   tags: system
 

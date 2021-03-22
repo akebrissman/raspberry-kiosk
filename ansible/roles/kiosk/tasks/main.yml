@@ -1,6 +1,6 @@
 ---
 
-- name: Install a list of packages
+- name: Install a list of apt-packages
   apt:
     pkg:
     - chromium-browser
@@ -9,9 +9,9 @@
   become: yes
   tags: kiosk
 
-- name: Copy local html file
-  copy:
-    src: index.html
+- name: Set local html file
+  template:
+    src: ../templates/index.html
     dest: ~/
   tags: kiosk
 
@@ -23,12 +23,14 @@
       @xset -dpms
       @xset s noblank
       @sed -i 's/"exited_cleanly": false/"exited_cleanly": true/' ~/.config/chromium-browser Default/Preferences
-      @chromium-browser --noerrdialogs --kiosk file:///home/pi/index.html --incognito --disable-features=TranslateUI --check-for-update-interval=1 --simulate-critical-update
+      @chromium-browser --kiosk {{ kiosk_url if (kiosk_url is defined) else 'file:///home/pi/index.html' }} --noerrdialogs --incognito --disable-features=TranslateUI --check-for-update-interval=1 --simulate-critical-update
   become: yes
   tags: kiosk
 
-- name: Unconditionally reboot the machine with all defaults
+- name: Unconditionally reboot
   reboot:
+    msg: "Reboot initiated by Ansible"
+    reboot_timeout: 600
   become: yes
   tags: kiosk
 

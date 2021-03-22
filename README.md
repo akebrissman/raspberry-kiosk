@@ -16,19 +16,21 @@ pip install -r requirements.txt
 
 Update configuration
 --------------------
-- Add the server(s) to the inventory.ini
-- Update the roles/kiosk/files/index.html file and add what file you want to be loaded in the iframe
-- Update the "Update autostart file" section in the roles/kiosk/tasks/main.yml and add the file you want to load (if you don't use iframe)
+- Update the inventory.ini
+  - Add the server(s) to the **[pi_kiosk]** section
+  - Assign a URL to the **kiosk_url** variable if you want to launch the url direct in the browser
+  - Assign a URL to the **kiosk_iframe_url** variable if you want to launch the url in an iframe (refreshed every hour)
 
 Run the playbook
 ----------------
 ```bash
 cd ansible
-ansible-playbook playbook.yml -i inventory.ini -vv
-# First  time it must be the command below since the keys are not applied yet
-ansible-playbook playbook.yml -i inventory.ini --ask-become-pass -vv
+ansible-playbook playbook.yml -i inventory.ini --diff -vv
 # To only update the kiosk settings
-ansible-playbook playbook.yml -i inventory.ini --tags kiosk -vv
+ansible-playbook playbook.yml -i inventory.ini --tags kiosk --diff -vv
+# First  time you need to be prompted for the password  since the keys are not applied yet
+ansible-playbook playbook.yml -i inventory.ini --diff --ask-become-pass -vv
+
 ```
 
 Project information
