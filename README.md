@@ -29,7 +29,7 @@ ansible-playbook playbook.yml -i inventory.ini --diff -vv
 # To only update the kiosk settings
 ansible-playbook playbook.yml -i inventory.ini --tags kiosk --diff -vv
 # First  time you need to be prompted for the password  since the keys are not applied yet
-ansible-playbook playbook.yml -i inventory.ini --diff --ask-become-pass -vv
+ansible-playbook playbook.yml -i inventory.ini --user pi --ask-pass --diff -vv
 
 ```
 
