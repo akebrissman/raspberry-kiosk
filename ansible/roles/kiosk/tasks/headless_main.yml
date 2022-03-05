@@ -2,10 +2,14 @@
 
 - name: Install a list of apt-packages
   apt:
+    install_recommends: yes
     pkg:
-    - unclutter
-    - lxde
+    - xserver-xorg
+    - x11-xserver-utils
+    - xinit
+    - openbox
     - xdotool
+    - chromium-browser
   become: true
   tags: kiosk
 
@@ -14,6 +18,7 @@
   with_items:
     - { src: 'get-serial.py', dest: '~/', mode: u+rwx }
     - { src: 'reload-script.py', dest: '~/', mode: u+rwx }
+    - { src: '.bash_profile', dest: '~/', mode: u+rw}
   tags: kiosk
 
 - name: Get Device id
@@ -27,35 +32,21 @@
     dest: ~/
   tags: kiosk
 
-- name: Set local html file with iframe
+- name: Set local html file
   template:
     src: ../templates/index.html
     dest: ~/
-  when: kiosk_iframe_url is defined
-  tags: kiosk
-
-- name: Make env file
-  template:
-    src: ../templates/.env
-    dest: ~/
-  when: cron_check_minute is defined
-  tags: kiosk
-
-- name: Pip install dotenv
-  pip:
-    name: python_dotenv
-  when: cron_check_minute is defined
   tags: kiosk
 
 - name: Update autostart file
   blockinfile:
-    path: /etc/xdg/lxsession/LXDE-pi/autostart
+    path: /etc/xdg/openbox/autostart
     block: |
-      @xset s off
-      @xset -dpms
-      @xset s noblank
-      @sed -i 's/"exited_cleanly": false/"exited_cleanly": true/' ~/.config/chromium/Default/Preferences
-      @chromium-browser --kiosk {{ kiosk_url if (kiosk_url is defined) else 'file:///home/pi/index.html' }} --noerrdialogs --disable-features=TranslateUI --check-for-update-interval=1 --simulate-critical-update
+      xset s off
+      xset -dpms
+      xset s noblank
+      sed -i 's/"exited_cleanly": false/"exited_cleanly": true/' ~/.config/chromium/Default/Preferences
+      chromium-browser --kiosk {{ kiosk_url if (kiosk_url is defined) else 'file:///home/pi/index.html' }} --noerrdialogs --disable-features=TranslateUI --check-for-update-interval=1 --simulate-critical-update --noerrdialogs --disable-infobars
   become: true
   tags: kiosk
 
@@ -65,7 +56,6 @@
     # job: "/home/pi/reload-script.py > /dev/null 2>&1"
     job: "/home/pi/reload-script.py >> /home/pi/cron.log"
     minute: "{{ cron_check_minute }}"
-  when: cron_check_minute is defined
   tags: kiosk
 
 - name: add cron job for 'reboot' check
@@ -73,7 +63,6 @@
     name: New reboot cron check.
     job: "/home/pi/reload-script.py --time 60 > /dev/null 2>&1"
     special_time: "reboot"
-  when: cron_check_minute is defined
   tags: kiosk
 
 - name: Unconditionally reboot

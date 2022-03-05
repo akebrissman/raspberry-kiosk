@@ -10,6 +10,13 @@
   become: true
   tags: system
 
+- name: Apt - Removes all packages from the package cache
+  command:
+    cmd: apt-get clean
+    warn: false
+  become: true
+  tags: system
+
 - name: configure option values in /etc/locale.gen file
   lineinfile:
     dest: /etc/locale.gen

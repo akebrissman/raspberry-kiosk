@@ -19,7 +19,13 @@
       # Enable SE Locale
       - regexp: "^#sv_SE.UTF-8 UTF-8"
         line: "sv_SE.UTF-8 UTF-8"
-
+    env:
+      AUTH_DOMAIN: "{{ auth_domain }}"
+      AUTH_CLIENT_ID: "{{ auth_client_id }}"
+      AUTH_CLIENT_SECRET: "{{ auth_client_secret }}"
+      AUTH_API_AUDIENCE: "{{ auth_audience }}"
+      AUTH_GRANT_TYPE: "{{ auth_grant_type }}"
+      SERVER: "{{ server }}"
   roles:
     - system
     - kiosk

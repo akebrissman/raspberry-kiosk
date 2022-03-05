@@ -18,8 +18,37 @@ Update configuration
 --------------------
 - Update the inventory.ini
   - Add the server(s) to the **[pi_kiosk]** section
-  - Assign a URL to the **kiosk_url** variable if you want to launch the url direct in the browser
-  - Assign a URL to the **kiosk_iframe_url** variable if you want to launch the url in an iframe (refreshed every hour)
+  
+  - Select any of the three options
+    - Static page
+      
+      Assign a URL to the **kiosk_url** variable, in the **[pi_kiosk:vars]** section, if you want to launch the url direct in the browser
+      ```bash
+      [pi_kiosk:vars]
+      kiosk_url=https://google.com
+      ansible_python_interpreter=/usr/bin/python3
+      ```
+    - Auto-reload page
+      
+      Assign a URL to the **kiosk_iframe_url** variable, in the **[pi_kiosk:vars]** section, if you want to launch the url in an iframe (refreshed by javascript every hour)
+      ```bash
+      [pi_kiosk:vars]
+      kiosk_iframe_url="https:news-flash.com"
+      ansible_python_interpreter=/usr/bin/python3
+      ```
+    - Script based reload of page
+      
+      Set 'show-id.html' as the **kiosk_url** in the **[pi_kiosk:vars]** section, to show the device id on the screen after installation. 
+      The device id can be added to a backend service like https://github.com/akebrissman/gateway, where you can group devices and then let a script, run by cron, check for what url to show for each specific device. See reload-script.py
+      
+      Set the refresh time to the **cron_check_minute** to call the reload-script with an interval
+       
+      ```bash
+      [pi_kiosk:vars]
+      kiosk_url=/home/pi/show-id.html
+      cron_check_minute="0****"
+      ansible_python_interpreter=/usr/bin/python3
+      ```
 
 Run the playbook
 ----------------
