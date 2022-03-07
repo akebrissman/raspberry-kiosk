@@ -47,6 +47,12 @@ Update configuration
       [pi_kiosk:vars]
       kiosk_url=/home/pi/show-id.html
       cron_check_minute="0****"
+      lookup_server=https://viewspot.server.se
+      auth_domain=https://user.eu.auth0.com/oauth/token
+      auth_client_id=tur755ygFUryfSKm8DR9W
+      auth_client_secret=UShRsA6y9hV_Dy7Fl
+      auth_audience=my-project-api
+      auth_grant_type=client_credentials
       ansible_python_interpreter=/usr/bin/python3
       ```
 

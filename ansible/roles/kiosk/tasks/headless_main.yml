@@ -32,10 +32,22 @@
     dest: ~/
   tags: kiosk
 
-- name: Set local html file
+- name: Set local html file with iframe
   template:
     src: ../templates/index.html
     dest: ~/
+  when: kiosk_iframe_url is defined
+  tags: kiosk
+
+- name: cusomize /etc/environment
+  lineinfile:
+    dest: /etc/environment
+    state: present
+    regexp: "^{{ item.key }}="
+    line: "{{ item.key }}={{ item.value }}"
+  with_items: "{{ kiosk_env }}"
+  become: true
+  when: cron_check_minute is defined
   tags: kiosk
 
 - name: Update autostart file
@@ -56,6 +68,7 @@
     # job: "/home/pi/reload-script.py > /dev/null 2>&1"
     job: "/home/pi/reload-script.py >> /home/pi/cron.log"
     minute: "{{ cron_check_minute }}"
+  when: cron_check_minute is defined
   tags: kiosk
 
 - name: add cron job for 'reboot' check
@@ -63,6 +76,7 @@
     name: New reboot cron check.
     job: "/home/pi/reload-script.py --time 60 > /dev/null 2>&1"
     special_time: "reboot"
+  when: cron_check_minute is defined
   tags: kiosk
 
 - name: Unconditionally reboot

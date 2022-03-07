@@ -34,16 +34,14 @@
   when: kiosk_iframe_url is defined
   tags: kiosk
 
-- name: Make env file
-  template:
-    src: ../templates/.env
-    dest: ~/
-  when: cron_check_minute is defined
-  tags: kiosk
-
-- name: Pip install dotenv
-  pip:
-    name: python_dotenv
+- name: cusomize /etc/environment
+  lineinfile:
+    dest: /etc/environment
+    state: present
+    regexp: "^{{ item.key }}="
+    line: "{{ item.key }}={{ item.value }}"
+  with_items: "{{ kiosk_env }}"
+  become: true
   when: cron_check_minute is defined
   tags: kiosk
 

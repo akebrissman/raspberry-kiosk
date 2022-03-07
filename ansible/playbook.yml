@@ -2,6 +2,7 @@
 
 - hosts: pi_kiosk
   remote_user: pi
+  gather_facts: false
 
   vars:
     wifi_country: "US"
@@ -19,13 +20,14 @@
       # Enable SE Locale
       - regexp: "^#sv_SE.UTF-8 UTF-8"
         line: "sv_SE.UTF-8 UTF-8"
-    env:
-      AUTH_DOMAIN: "{{ auth_domain }}"
-      AUTH_CLIENT_ID: "{{ auth_client_id }}"
-      AUTH_CLIENT_SECRET: "{{ auth_client_secret }}"
-      AUTH_API_AUDIENCE: "{{ auth_audience }}"
-      AUTH_GRANT_TYPE: "{{ auth_grant_type }}"
-      SERVER: "{{ server }}"
+    kiosk_env:
+      - { 'key': 'KIOSK_AUTH_DOMAIN' , 'value': '{{ auth_domain }}' }
+      - { 'key': 'KIOSK_AUTH_CLIENT_ID' , 'value': '{{ auth_client_id }}' }
+      - { 'key': 'KIOSK_AUTH_CLIENT_SECRET' , 'value': '{{ auth_client_secret }}' }
+      - { 'key': 'KIOSK_AUTH_API_AUDIENCE' , 'value': '{{ auth_audience }}' }
+      - { 'key': 'KIOSK_AUTH_GRANT_TYPE' , 'value': '{{ auth_grant_type }}' }
+      - { 'key': 'KIOSK_SERVER' , 'value': '{{ lookup_server }}' }
+
   roles:
     - system
     - kiosk

@@ -6,18 +6,15 @@ import json
 import time
 import requests
 from datetime import datetime
-from dotenv import load_dotenv, find_dotenv
 
-ENV_FILE = find_dotenv()
-if ENV_FILE:
-    load_dotenv(ENV_FILE)
 
-auth_domain = os.getenv("AUTH_DOMAIN", "your domain.com")
-auth_data = {"client_id": os.getenv("AUTH_CLIENT_ID", "your client id"),
-             "client_secret": os.getenv("AUTH_CLIENT_SECRET", "your client secret"),
-             "audience": os.getenv("AUTH_API_AUDIENCE", "your audience"),
-             "grant_type": "client_credentials"}
-server = os.getenv("SERVER", "your.audience.com")
+auth_domain = os.getenv("KIOSK_AUTH_DOMAIN", "your domain.com")
+auth_data = {"client_id": os.getenv("KIOSK_AUTH_CLIENT_ID", "your client id"),
+             "client_secret": os.getenv("KIOSK_AUTH_CLIENT_SECRET", "your client secret"),
+             "audience": os.getenv("KIOSK_AUTH_API_AUDIENCE", "your audience"),
+             "grant_type": os.getenv("KIOSK_AUTH_GRANT_TYPE", "your grant type")
+             }
+server = os.getenv("KIOSK_SERVER", "your.audience.com")
 groupEndpoint = server + '/api/group/'
 deviceEndpoint = server + '/api/device/'
 
