@@ -60,11 +60,13 @@ Run the playbook
 ----------------
 ```bash
 cd ansible
+# First time you need to be prompted for the password  since the keys are not applied yet
+ansible-playbook playbook.yml -i inventory.ini --user pi --ask-pass --diff -vv
+
+# Thereafter you can skip the --ask-pass if your put your public key in the public_keys folder
 ansible-playbook playbook.yml -i inventory.ini --diff -vv
 # To only update the kiosk settings
 ansible-playbook playbook.yml -i inventory.ini --tags kiosk --diff -vv
-# First  time you need to be prompted for the password  since the keys are not applied yet
-ansible-playbook playbook.yml -i inventory.ini --user pi --ask-pass --diff -vv
 
 ```
 

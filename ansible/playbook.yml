@@ -4,6 +4,14 @@
   remote_user: pi
   gather_facts: false
 
+  tasks:
+    - name: Set up authorized_keys for 'pi' user
+      authorized_key: user=pi key="{{ lookup('file', item) }}"
+      become: true
+      with_fileglob:
+        - public_keys/*_id_rsa.pub
+      tags: systemet
+
   vars:
     wifi_country: "US"
     locale: "en_US.UTF-8"
