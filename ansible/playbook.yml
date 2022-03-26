@@ -10,7 +10,7 @@
       become: true
       with_fileglob:
         - public_keys/*_id_rsa.pub
-      tags: systemet
+      tags: system
 
   vars:
     wifi_country: "US"

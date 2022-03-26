@@ -109,17 +109,23 @@ def get_my_group_name(token: str, serial: str) -> str:
     url: str = deviceEndpoint + serial
     group_name: str = "ERROR"
     headers = {"Authorization": f"Bearer {token}"}
-    try:
-        response = requests.get(url, headers=headers)
-        if response.ok:
-            result = response.json()
-            group_name = result['group']
-        else:
-            print(response.status_code, " ", response.text)
+    retry_count = 5
 
-    except requests.exceptions.ConnectionError as e:
-        print(url)
-        print(e)
+    while retry_count > 0:
+        try:
+            response = requests.get(url, headers=headers)
+            if response.ok:
+                result = response.json()
+                group_name = result['group']
+            else:
+                print(response.status_code, " ", response.text)
+            break
+        except requests.exceptions.ConnectionError as e:
+            time.sleep(retry_count)
+            retry_count -= 1
+            print(f"Remaining attempts: {retry_count}")
+            print(url)
+            print(e)
 
     return group_name
 

@@ -1,5 +1,5 @@
 # raspberry-kiosk
-This project set up a Raspberry Pi in kiosk mode
+This project set up a Raspberry Pi in kiosk mode using an Ansible Playbook
 
 
 Getting started
