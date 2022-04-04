@@ -10,6 +10,8 @@ Prepare installation
 ```bash 
 Clone the project
 cd raspberry-kiosk
+# On Windows, Switch to checkout folder from Windows Sub System For Linux (Ubunutu)
+# cd /mnt/c/.../.../raspberry-kiosk
 python3 -m venv venv && . venv/bin/activate
 pip install -r requirements.txt
 ```
@@ -71,8 +73,9 @@ ansible-playbook playbook.yml -i inventory.ini --tags kiosk --diff -vv
 ```
 
 Project information
------------
+-------------------
 - The user is the default user 'pi'
-- The public_keys are stored in the 'ansible/public_keys' folder. 
-- The keys are assigned to the user 'pi' in playbook.yml which must be updated if new keys are added. 
+- The public_keys are stored in the 'ansible/public_keys' folder
+- The keys are assigned to the user 'pi' in playbook.yml which must be updated if new keys are added
+- The Authentication is using Client Credentials Grant Type
 
