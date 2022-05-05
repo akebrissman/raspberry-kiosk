@@ -5,6 +5,7 @@ import getopt
 import json
 import time
 import requests
+import socket
 from datetime import datetime
 
 
@@ -38,6 +39,19 @@ def read_from_file() -> dict:
     return data
 
 
+def get_local_ip():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.settimeout(0)
+    try:
+        s.connect(('10.255.255.255', 1))
+        local_ip = s.getsockname()[0]
+    except socket.error:
+        local_ip = '127.0.0.1'
+    finally:
+        s.close()
+    return local_ip
+
+
 def get_meta_data() -> dict:
     # Extract meta data for cpu, memory, os file
     meta = {}
@@ -65,8 +79,11 @@ def get_meta_data() -> dict:
                     meta["memTotal"] = data[1].strip()
                 if data[0].strip() == "MemFree":
                     meta["memFree"] = data[1].strip()
+
     except FileNotFoundError:
         pass
+
+    meta["local_ip"] = get_local_ip()
 
     return meta
 
@@ -105,10 +122,10 @@ def sign_in() -> str:
     return access_token
 
 
-def get_my_group_name(token: str, serial: str) -> str:
+def get_my_group_name(token: str, serial: str, local_ip: str) -> str:
     url: str = deviceEndpoint + serial
     group_name: str = "ERROR"
-    headers = {"Authorization": f"Bearer {token}"}
+    headers = {"Authorization": f"Bearer {token}", "X-Forwarded-For": local_ip}
     retry_count = 5
 
     while retry_count > 0:
@@ -144,6 +161,7 @@ def start(argv):
 
     meta = get_meta_data()
     serial = meta.get("serial")
+    local_ip = meta.get("local_ip")
     update_show_id_file(serial)
     print("Time", datetime.now())
     print("Model  : ", meta.get("model"))
@@ -152,13 +170,14 @@ def start(argv):
     print("OS ver : ", meta.get("osVersion"))
     print("Total mem: ", meta.get("memTotal"))
     print("Free mem : ", meta.get("memFree"))
+    print("Local IP: ", meta.get("local_ip"))
 
     token = sign_in()
     if token == "ERROR":
         return
 
-    url = groupEndpoint + get_my_group_name(token, serial)
-    headers = {"Authorization": f"Bearer {token}"}
+    url = groupEndpoint + get_my_group_name(token, serial, local_ip)
+    headers = {"Authorization": f"Bearer {token}", "X-Forwarded-For": local_ip}
 
     try:
         response = requests.get(url, headers=headers)
