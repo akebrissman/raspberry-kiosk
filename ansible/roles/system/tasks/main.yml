@@ -42,7 +42,14 @@
   ansible.builtin.template:
     src: ../templates/timezone
     dest: /etc/timezone
+  register: timezone
   become: true
+  tags: system
+
+- name: reconfigure timezone data
+  command: dpkg-reconfigure -f noninteractive tzdata
+  become: true
+  when: timezone.changed
   tags: system
 
 - name: set default keyboard

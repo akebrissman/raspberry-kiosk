@@ -7,6 +7,7 @@ import time
 import requests
 import socket
 from datetime import datetime
+# import cec
 
 
 auth_domain = os.getenv("KIOSK_AUTH_DOMAIN", "your domain.com")
@@ -52,8 +53,24 @@ def get_local_ip():
     return local_ip
 
 
+def turn_on_off_tv():
+    now = datetime.now().time()
+    if now.hour == 8:
+        print("Turn on TV")
+        os.system("echo 'on 0' | cec-client -s -d 1") # Turn on TV
+        # cec.init()
+        # tv = cec.Device(cec.CECDEVICE_TV)
+        # tv.on()
+    elif now.hour == 19:
+        print("Turn off TV")
+        os.system("echo 'standby 0' | cec-client -s -d 1") # Turn off TV
+        # cec.init()
+        # tv = cec.Device(cec.CECDEVICE_TV)
+        # tv.standby()
+
+
 def get_meta_data() -> dict:
-    # Extract meta data for cpu, memory, os file
+    # Extract meta data for cpu, memory and os
     meta = {}
     try:
         with open('/proc/cpuinfo', 'r') as f:
@@ -80,6 +97,9 @@ def get_meta_data() -> dict:
                 if data[0].strip() == "MemFree":
                     meta["memFree"] = data[1].strip()
 
+        with open('/sys/class/graphics/fb0/virtual_size', 'r') as f:
+            meta["screen_res"] = f.read().strip()
+
     except FileNotFoundError:
         pass
 
@@ -102,7 +122,7 @@ def update_show_id_file(serial: str):
                 f.seek(0)
                 f.write(body)
     except FileNotFoundError:
-        print("No show-id.html file")
+        print("show-id.html not found")
 
 
 def sign_in() -> str:
@@ -163,6 +183,7 @@ def start(argv):
     serial = meta.get("serial")
     local_ip = meta.get("local_ip")
     update_show_id_file(serial)
+    print("")
     print("Time", datetime.now())
     print("Model  : ", meta.get("model"))
     print("Serial : ", meta.get("serial"))
@@ -171,6 +192,7 @@ def start(argv):
     print("Total mem: ", meta.get("memTotal"))
     print("Free mem : ", meta.get("memFree"))
     print("Local IP: ", meta.get("local_ip"))
+    print("Screen: ", meta.get("screen_res"))
 
     token = sign_in()
     if token == "ERROR":
@@ -183,7 +205,7 @@ def start(argv):
         response = requests.get(url, headers=headers)
         if response.ok:
             result = response.json()
-            print("URL to load", result['url'])
+            print("URL: ", result['url'])
 
             last_url = read_from_file()['last-url']
             if result['url'] != last_url:
@@ -198,7 +220,7 @@ def start(argv):
                 save_to_file({'last-url': result['url']})
             else:
                 # Reload current tab
-                print("Refresh")
+                print("Refresh page")
                 os.system("DISPLAY=:0 xdotool key F5")
         else:
             print(url)
@@ -211,6 +233,8 @@ def start(argv):
         os.system(f"DISPLAY=:0 chromium-browser 'show-id.html'")
         save_to_file({'last-url': 'show-id.html'})
 
+
+    turn_on_off_tv()
 
 if __name__ == '__main__':
     start(sys.argv[1:])

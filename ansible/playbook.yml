@@ -17,7 +17,7 @@
     locale: "en_US.UTF-8"
     keyboard: "pc105"
     keyboard_layout: "se"
-    timezone: Etc/UTC
+#     timezone: Etc/UTC
     locale_options:
       # Disable Default (GB) Locale
       - regexp: "^#?en_GB.UTF-8 UTF-8"

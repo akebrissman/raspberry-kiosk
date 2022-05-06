@@ -6,6 +6,7 @@
     - unclutter
     - lxde
     - xdotool
+    - cec-utils
   when: host_type == "desktop"
   become: true
   tags: kiosk
@@ -20,6 +21,7 @@
     - openbox
     - xdotool
     - chromium-browser
+    - cec-utils
   when: host_type == "lite"
   become: true
   tags: kiosk
