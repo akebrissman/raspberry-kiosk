@@ -1,12 +1,11 @@
 ---
 
 - hosts: pi_kiosk
-  remote_user: pi
   gather_facts: false
 
   tasks:
-    - name: Set up authorized_keys for 'pi' user
-      authorized_key: user=pi key="{{ lookup('file', item) }}"
+    - name: Set up authorized_keys for 'default' user
+      authorized_key: user={{ansible_user}} key="{{ lookup('file', item) }}"
       become: true
       with_fileglob:
         - public_keys/*_id_rsa.pub

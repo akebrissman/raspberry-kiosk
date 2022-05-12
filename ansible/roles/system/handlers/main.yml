@@ -7,14 +7,14 @@
   become: true
   tags: system
 
-- name: wait for Raspberry PI to come back
+- name: wait for Raspberry Pi to come back
   local_action: wait_for host={{ real_ansible_host }} port=22 state=started delay=10
   become: false
   tags: system
 
 - name: Set hostname
   become: yes
-  command: hostnamectl set-hostname "{{ hostname }}"
+  command: hostnamectl set-hostname "{{ host_name }}"
   tags: system
 
 ...

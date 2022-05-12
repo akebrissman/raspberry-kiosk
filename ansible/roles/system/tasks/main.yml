@@ -39,9 +39,7 @@
   tags: system
 
 - name: set timezone
-  ansible.builtin.template:
-    src: ../templates/timezone
-    dest: /etc/timezone
+  command:  timedatectl set-timezone {{ timezone }}
   register: timezone
   become: true
   tags: system
@@ -58,6 +56,11 @@
     dest: /etc/default/keyboard
   become: true
   tags: system
+
+- name: Set hostname
+  become: yes
+  command: hostnamectl set-hostname "{{ host_name }}"
+  tags: systemet
 
 # notify: reboot
 

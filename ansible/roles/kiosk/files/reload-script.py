@@ -117,7 +117,7 @@ def update_show_id_file(serial: str):
                 start_pos = start_pos + 3
             end_pos = body.find("</p>")
             serial_in_file = body[start_pos:end_pos]
-            if serial != serial:
+            if serial_in_file != serial:
                 body = body.replace(serial_in_file, serial)
                 f.seek(0)
                 f.write(body)
