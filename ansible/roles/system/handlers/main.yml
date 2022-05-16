@@ -12,9 +12,4 @@
   become: false
   tags: system
 
-- name: Set hostname
-  become: yes
-  command: hostnamectl set-hostname "{{ host_name }}"
-  tags: system
-
 ...

@@ -61,7 +61,7 @@
   when: kiosk_iframe_url is defined
   tags: kiosk
 
-- name: cusomize /etc/environment
+- name: customize /etc/environment
   lineinfile:
     dest: /etc/environment
     state: present

@@ -10,7 +10,7 @@ Prepare installation
 ```bash 
 Clone the project
 cd raspberry-kiosk
-# On Windows, Switch to checkout folder from Windows Sub System For Linux (Ubunutu)
+# On Windows, switch to the project folder from "Windows Sub System For Linux" (Ubunutu)
 # cd /mnt/c/.../.../raspberry-kiosk
 python3 -m venv venv && . venv/bin/activate
 pip install -r requirements.txt
@@ -63,7 +63,7 @@ Run the playbook
 ```bash
 cd ansible
 # First time you need to be prompted for the password  since the keys are not applied yet
-ansible-playbook playbook.yml -i inventory.ini --user pi --ask-pass --diff -vv
+ansible-playbook playbook.yml -i inventory.ini --user <user> --ask-pass --diff -vv
 
 # Thereafter you can skip the --ask-pass if your put your public key in the public_keys folder
 ansible-playbook playbook.yml -i inventory.ini --diff -vv
@@ -74,8 +74,8 @@ ansible-playbook playbook.yml -i inventory.ini --tags kiosk --diff -vv
 
 Project information
 -------------------
-- The user is the default user 'pi'
+- The application is run as the default user created during the image creation and used for deployment 
 - The public_keys are stored in the 'ansible/public_keys' folder
-- The keys are assigned to the user 'pi' in playbook.yml which must be updated if new keys are added
+- The keys are assigned to the default user in playbook.yml
 - The Authentication is using Client Credentials Grant Type
 
