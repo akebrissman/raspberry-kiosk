@@ -6,6 +6,7 @@ import json
 import time
 import requests
 import socket
+import subprocess
 from datetime import datetime
 # import cec
 
@@ -53,17 +54,37 @@ def get_local_ip():
     return local_ip
 
 
+def chromium_load_url(url: str):
+    browser = "chromium-browser"
+    try:
+        subprocess.check_output("chromium-browser --version", shell=True)
+    except subprocess.CalledProcessError:
+        browser = "chromium"
+
+    # os.system(f"DISPLAY=:0 chromium-browser --same-tab '{result['url']}'") # Does not work
+    os.system(f"DISPLAY=:0 {browser} '{url}'")
+
+
+def chromium_refresh():
+    os.system("DISPLAY=:0 xdotool key F5")
+
+
+def chromium_kill_tabs():
+    # os.system("DISPLAY=:0 xdotool key CTRL+F4") # Closes chromium if it is the last tab
+    os.system('pkill -f -- "--type=renderer"')
+
+
 def turn_on_off_tv():
     now = datetime.now().time()
     if now.hour == 8:
         print("Turn on TV")
-        os.system("echo 'on 0' | cec-client -s -d 1") # Turn on TV
+        os.system("echo 'on 0' | cec-client -s -d 1")  # Turn on TV
         # cec.init()
         # tv = cec.Device(cec.CECDEVICE_TV)
         # tv.on()
     elif now.hour == 19:
         print("Turn off TV")
-        os.system("echo 'standby 0' | cec-client -s -d 1") # Turn off TV
+        os.system("echo 'standby 0' | cec-client -s -d 1")  # Turn off TV
         # cec.init()
         # tv = cec.Device(cec.CECDEVICE_TV)
         # tv.standby()
@@ -102,6 +123,17 @@ def get_meta_data() -> dict:
 
     except FileNotFoundError:
         pass
+
+    if "Serial" not in meta:
+        try:
+            output = subprocess.check_output("sudo dmidecode -t system", shell=True).decode("utf-8")
+            for line in output.splitlines():
+                if line.find("Serial Number") != -1:
+                    meta["serial"] = line.split(":")[1].strip()
+                if line.find("Product Name") != -1:
+                    meta["model"] = line.split(":")[1].strip()
+        except subprocess.CalledProcessError:
+            pass
 
     meta["local_ip"] = get_local_ip()
 
@@ -209,32 +241,26 @@ def start(argv):
 
             last_url = read_from_file()['last-url']
             if result['url'] != last_url:
-                # Delete current Tab
-                # os.system("DISPLAY=:0 xdotool key CTRL+F4") # Closes chromium if it is the last tab
-                os.system('pkill -f -- "--type=renderer"')
-
-                # Load new url
-                # os.system(f"DISPLAY=:0 chromium-browser --same-tab '{result['url']}'") # Does not work
-                os.system(f"DISPLAY=:0 chromium-browser '{result['url']}'")
-
+                chromium_kill_tabs()
+                chromium_load_url(result['url'])
                 save_to_file({'last-url': result['url']})
             else:
                 # Reload current tab
                 print("Refresh page")
-                os.system("DISPLAY=:0 xdotool key F5")
+                chromium_refresh()
         else:
             print(url)
             print(response.status_code, " ", response.text)
-            os.system(f"DISPLAY=:0 chromium-browser 'show-id.html'")
+            chromium_load_url('show-id.html')
             save_to_file({'last-url': 'show-id.html'})
 
     except requests.exceptions.ConnectionError as e:
         print(e)
-        os.system(f"DISPLAY=:0 chromium-browser 'show-id.html'")
+        chromium_load_url('show-id.html')
         save_to_file({'last-url': 'show-id.html'})
 
-
     turn_on_off_tv()
+
 
 if __name__ == '__main__':
     start(sys.argv[1:])

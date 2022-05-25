@@ -31,7 +31,7 @@
   with_items:
     - { src: 'get-serial.py', dest: '~/', mode: u+rwx }
     - { src: 'reload-script.py', dest: '~/', mode: u+rwx }
-  when: host_type == "desktop"
+  when: host_type == "desktop" or host_type == "laptop"
   tags: kiosk
 
 - name: Place out files (lite)
@@ -80,7 +80,7 @@
       @xset -dpms
       @xset s noblank
       @sed -i 's/"exited_cleanly": false/"exited_cleanly": true/' ~/.config/chromium/Default/Preferences
-      @chromium-browser --kiosk {{ kiosk_url if (kiosk_url is defined) else 'file:///~/index.html' }} --noerrdialogs --disable-features=TranslateUI --check-for-update-interval=1 --simulate-critical-update
+      @chromium-browser {{ kiosk_url if (kiosk_url is defined) else 'file:///~/index.html' }} --kiosk --disable-gpu-compositing --noerrdialogs --disable-features=TranslateUI --check-for-update-interval=1 --simulate-critical-update
   when: host_type == "desktop"
   become: true
   tags: kiosk
@@ -93,8 +93,21 @@
       xset -dpms
       xset s noblank
       sed -i 's/"exited_cleanly": false/"exited_cleanly": true/' ~/.config/chromium/Default/Preferences
-      chromium-browser --kiosk {{ kiosk_url if (kiosk_url is defined) else 'file:///~/index.html' }} --noerrdialogs --disable-features=TranslateUI --check-for-update-interval=1 --simulate-critical-update --noerrdialogs --disable-infobars
+      chromium-browser {{ kiosk_url if (kiosk_url is defined) else 'file:///~/index.html' }} --kiosk --disable-gpu-compositing --noerrdialogs --disable-features=TranslateUI --check-for-update-interval=1 --simulate-critical-update --noerrdialogs --disable-infobars
   when: host_type == "lite"
+  become: true
+  tags: kiosk
+
+- name: Update autostart file (laptop)
+  blockinfile:
+    path: /etc/xdg/lxsession/LXDE-pi/autostart
+    block: |
+      @xset s off
+      @xset -dpms
+      @xset s noblank
+      @sed -i 's/"exited_cleanly": false/"exited_cleanly": true/' ~/.config/chromium/Default/Preferences
+      @chromium {{ kiosk_url if (kiosk_url is defined) else 'file:///~/index.html' }} --kiosk --noerrdialogs --disable-features=TranslateUI --check-for-update-interval=1 --simulate-critical-update
+  when: host_type == "laptop"
   become: true
   tags: kiosk
 
@@ -110,7 +123,8 @@
 - name: add cron job for 'reboot' check
   cron:
     name: New reboot cron check.
-    job: "~/reload-script.py --time 60 > /dev/null 2>&1"
+    # job: "~/reload-script.py --time 60 > /dev/null 2>&1"
+    job: "~/reload-script.py --time 60 >> ~/cron.log"
     special_time: "reboot"
   when: cron_check_minute is defined
   tags: kiosk
