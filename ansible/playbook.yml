@@ -34,6 +34,7 @@
       - { 'key': 'KIOSK_AUTH_API_AUDIENCE' , 'value': '{{ auth_audience }}' }
       - { 'key': 'KIOSK_AUTH_GRANT_TYPE' , 'value': '{{ auth_grant_type }}' }
       - { 'key': 'KIOSK_SERVER' , 'value': '{{ lookup_server }}' }
+    index_url: "/home/{{ansible_user}}/index.html"
 
   roles:
     - system

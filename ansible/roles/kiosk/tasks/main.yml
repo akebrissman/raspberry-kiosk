@@ -1,17 +1,17 @@
 ---
 
-- name: Install a list of apt-packages (desktop)
+- name: Install apt-packages (desktop)
   apt:
     pkg:
     - unclutter
     - lxde
     - xdotool
     - cec-utils
-  when: host_type == "desktop"
+  when: host_type == "desktop" or host_type == "laptop"
   become: true
   tags: kiosk
 
-- name: Install a list of apt-packages (lite)
+- name: Install apt-packages (lite)
   apt:
     install_recommends: yes
     pkg:
@@ -26,42 +26,35 @@
   become: true
   tags: kiosk
 
-- name: Place out files (desktop)
-  copy: src={{ item.src }} dest={{ item.dest }} mode={{ item.mode }}
-  with_items:
-    - { src: 'get-serial.py', dest: '~/', mode: u+rwx }
-    - { src: 'reload-script.py', dest: '~/', mode: u+rwx }
-  when: host_type == "desktop" or host_type == "laptop"
-  tags: kiosk
-
 - name: Place out files (lite)
   copy: src={{ item.src }} dest={{ item.dest }} mode={{ item.mode }}
   with_items:
-    - { src: 'get-serial.py', dest: '~/', mode: u+rwx }
-    - { src: 'reload-script.py', dest: '~/', mode: u+rwx }
     - { src: '.bash_profile', dest: '~/', mode: u+rw}
   when: host_type == "lite"
+  tags: kiosk
+
+- name: Place out script files
+  copy: src={{ item.src }} dest={{ item.dest }} mode={{ item.mode }}
+  with_items:
+    - { src: 'get-serial.py', dest: '~/', mode: u+rwx }
+    - { src: 'reload-script.py', dest: '~/', mode: u+rwx }
+  when: cron_check_minute is defined
   tags: kiosk
 
 - name: Get Device id
   command: ~/get-serial.py
   register: device_id
+  when: cron_check_minute is defined
   tags: kiosk
 
-- name: Set Device Id html file
+- name: Set Device id in html file
   template:
     src: ../templates/show-id.html
     dest: ~/
+  when: cron_check_minute is defined
   tags: kiosk
 
-- name: Set local html file with iframe
-  template:
-    src: ../templates/index.html
-    dest: ~/
-  when: kiosk_iframe_url is defined
-  tags: kiosk
-
-- name: customize /etc/environment
+- name: Customize /etc/environment
   lineinfile:
     dest: /etc/environment
     state: present
@@ -72,6 +65,13 @@
   when: cron_check_minute is defined
   tags: kiosk
 
+- name: Set iframe url to index.html
+  template:
+    src: ../templates/index.html
+    dest: ~/
+  when: kiosk_iframe_url is defined
+  tags: kiosk
+
 - name: Update autostart file (desktop)
   blockinfile:
     path: /etc/xdg/lxsession/LXDE-pi/autostart
@@ -80,7 +80,7 @@
       @xset -dpms
       @xset s noblank
       @sed -i 's/"exited_cleanly": false/"exited_cleanly": true/' ~/.config/chromium/Default/Preferences
-      @chromium-browser {{ kiosk_url if (kiosk_url is defined) else 'file:///~/index.html' }} --kiosk --disable-gpu-compositing --noerrdialogs --disable-features=TranslateUI --check-for-update-interval=1 --simulate-critical-update
+      @chromium-browser {{ kiosk_url if (kiosk_url is defined) else index_url }} --kiosk --noerrdialogs --disable-features=TranslateUI --check-for-update-interval=1 --simulate-critical-update --disable-gpu-compositing
   when: host_type == "desktop"
   become: true
   tags: kiosk
@@ -93,7 +93,7 @@
       xset -dpms
       xset s noblank
       sed -i 's/"exited_cleanly": false/"exited_cleanly": true/' ~/.config/chromium/Default/Preferences
-      chromium-browser {{ kiosk_url if (kiosk_url is defined) else 'file:///~/index.html' }} --kiosk --disable-gpu-compositing --noerrdialogs --disable-features=TranslateUI --check-for-update-interval=1 --simulate-critical-update --noerrdialogs --disable-infobars
+      chromium-browser {{ kiosk_url if (kiosk_url is defined) else index_url }} --kiosk --noerrdialogs --disable-features=TranslateUI --check-for-update-interval=1 --simulate-critical-update --disable-gpu-compositing
   when: host_type == "lite"
   become: true
   tags: kiosk
@@ -106,12 +106,12 @@
       @xset -dpms
       @xset s noblank
       @sed -i 's/"exited_cleanly": false/"exited_cleanly": true/' ~/.config/chromium/Default/Preferences
-      @chromium {{ kiosk_url if (kiosk_url is defined) else 'file:///~/index.html' }} --kiosk --noerrdialogs --disable-features=TranslateUI --check-for-update-interval=1 --simulate-critical-update
+      @chromium {{ kiosk_url if (kiosk_url is defined) else index_url }} --kiosk --noerrdialogs --disable-features=TranslateUI --check-for-update-interval=1 --simulate-critical-update
   when: host_type == "laptop"
   become: true
   tags: kiosk
 
-- name: add cron job for 'new experience' check
+- name: Add cron job for 'new experience' check
   cron:
     name: New experience cron check.
     # job: "~/reload-script.py > /dev/null 2>&1"
@@ -120,7 +120,7 @@
   when: cron_check_minute is defined
   tags: kiosk
 
-- name: add cron job for 'reboot' check
+- name: Add cron job for 'reboot' check
   cron:
     name: New reboot cron check.
     # job: "~/reload-script.py --time 60 > /dev/null 2>&1"

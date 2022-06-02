@@ -16,35 +16,43 @@ python3 -m venv venv && . venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Update configuration
---------------------
-- Update the inventory.ini
+Setup options and configuration
+-------------------------------
+- Update the inventory.ini or modify one of the sample files
   - Add the server(s) to the **[pi_kiosk]** section
-  
-  - Select any of the three options
+
+    **host_name** sets the host name <br/>
+    **host_type** tells if the target device runs Raspberry Pi OS desktop or lite 
+
+
+  - Select any of the three setup options
     - Static page
-      
-      Assign a URL to the **kiosk_url** variable, in the **[pi_kiosk:vars]** section, if you want to launch the url direct in the browser
+
+      Assign a URL to the **kiosk_url** variable, in the **[pi_kiosk:vars]** section, when you want to launch the URL in the browser <br/>
+      See sample file: **inventory.ini**
       ```bash
       [pi_kiosk:vars]
-      kiosk_url=https://google.com
+      kiosk_url=https://lite.cnn.com/en
       ansible_python_interpreter=/usr/bin/python3
       ```
     - Auto-reload page
-      
-      Assign a URL to the **kiosk_iframe_url** variable, in the **[pi_kiosk:vars]** section, if you want to launch the url in an iframe (refreshed by javascript every hour)
+
+      Assign a URL to the **kiosk_iframe_url** variable, in the **[pi_kiosk:vars]** section, when you want to launch the URL in an iframe (refreshed by javascript every hour) <br/>
+      See sample file: **inventory-iframe.ini**
       ```bash
       [pi_kiosk:vars]
-      kiosk_iframe_url="https:news-flash.com"
+      kiosk_iframe_url=https://lite.cnn.com/en
       ansible_python_interpreter=/usr/bin/python3
       ```
     - Script based reload of page
-      
-      Set 'show-id.html' as the **kiosk_url** in the **[pi_kiosk:vars]** section, to show the device id on the screen after installation. 
-      The device id can be added to a backend service like https://github.com/akebrissman/gateway, where you can group devices and then let a script, run by cron, check for what url to show for each specific device. See reload-script.py
-      
-      Set the refresh time to the **cron_check_minute** to call the reload-script with an interval
-       
+
+      Set the file name 'show-id.html' to the **kiosk_url** parameter in the **[pi_kiosk:vars]** section, when you want to show the device id on the screen after installation. 
+      The device id is used to differentiate the content per player when using a  backend service like https://github.com/akebrissman/gateway. With a backend service you can group devices and then let a script check for what URL to show for each device.
+
+      The **cron_check_minute** sets the interval for the reload-script to be called and the page to be refreshed.<br/>
+      The **lookup_server** is the URL to the backend server to get the URL.<br/>
+      The **auth_** parameters are used for signing in and receiving a Bearer Token used in the backend API requests.<br/>
+      See sample file: **inventory-iframe.ini** 
       ```bash
       [pi_kiosk:vars]
       kiosk_url=/home/pi/show-id.html
