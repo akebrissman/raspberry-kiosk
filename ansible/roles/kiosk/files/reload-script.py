@@ -226,9 +226,21 @@ def start(argv):
     print("Local IP: ", meta.get("local_ip"))
     print("Screen: ", meta.get("screen_res"))
 
-    token = sign_in()
-    if token == "ERROR":
-        return
+    data = read_from_file()
+    last_url = data.get('last-url')
+    token = data.get('token')
+    now = datetime.now().time()
+
+    if not token or now.hour == 1:
+        # Get a token once a day at 1 and make sure it does not expire for 24 hours
+        token = sign_in()
+        if token == "ERROR":
+            data['token'] = None
+            save_to_file(data)
+            return
+        else:
+            data['token'] = token
+            save_to_file(data)
 
     url = groupEndpoint + get_my_group_name(token, serial, local_ip)
     headers = {"Authorization": f"Bearer {token}", "X-Forwarded-For": local_ip}
@@ -239,11 +251,11 @@ def start(argv):
             result = response.json()
             print("URL: ", result['url'])
 
-            last_url = read_from_file()['last-url']
             if result['url'] != last_url:
                 chromium_kill_tabs()
                 chromium_load_url(result['url'])
-                save_to_file({'last-url': result['url']})
+                data ['last-url'] = result['url']
+                save_to_file(data)
             else:
                 # Reload current tab
                 print("Refresh page")
